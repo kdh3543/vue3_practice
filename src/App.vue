@@ -1,26 +1,24 @@
+<!-- vue 컴포넌트는 총 세부분으로 나뉨 -->
+<!-- template, script, style -->
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="name">테스트 코드 중 {{ name }}</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+  // 필요한 로직 작성
+  setup() {
+    let name = 'kevin'
+
+    return {
+      name,
+    }
+  },
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.name {
+  color: red;
 }
 </style>
