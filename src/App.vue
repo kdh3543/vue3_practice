@@ -14,6 +14,29 @@
   <button class="btn btn-primary" @click="btnEvent">click</button>
   <button class="btn btn-primary" @click="onSubmit">submit</button>
   <hr />
+  <div class="container">
+    <h1>Todo List</h1>
+
+    <!-- @submit.prevent => event.preventDefault()와 동일 -->
+    <form @submit.prevent="onPlus" class="d-flex">
+      <div class="flex-grow-1 mr-2">
+        <input
+          placeholder="Type new to-do"
+          class="form-control"
+          type="text"
+          v-model="todo"
+        />
+      </div>
+      <div>
+        <button class="btn btn-primary" type="submit">Plus</button>
+      </div>
+    </form>
+    <div style="color: red" v-show="hasError">This field cannot be empty</div>
+    <!-- v-for 사용시 key도 같이 -->
+    <div v-for="todo in todos" :key="todo.id" class="card mt-2">
+      <div class="card-body p-2">{{ todo.subject }}</div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -27,6 +50,13 @@ export default {
     // reactive는 object, array 이외에는 사용 불가능
     const otherName = reactive({ title: 'kevin21' })
     const nameClass = ref('name')
+    const hasError = ref(false)
+
+    const todo = ref('')
+    const todos = ref([
+      { id: 1, subject: '휴대폰사기' },
+      { id: 2, subject: '장보기' },
+    ])
 
     const greeting = (param) => {
       return 'hello, ' + param
@@ -43,9 +73,18 @@ export default {
       console.log(name.value)
     }
 
-    // const updateName = (e) => {
-    //   name.value = e.target.value
-    // }
+    const onPlus = () => {
+      console.log(todo.value)
+      if (todo.value === '') {
+        hasError.value = true
+        return
+      }
+      hasError.value = false
+      todos.value.push({
+        id: Date.now(),
+        subject: todo.value,
+      })
+    }
 
     return {
       name,
@@ -54,6 +93,10 @@ export default {
       greeting,
       btnEvent,
       onSubmit,
+      todo,
+      todos,
+      onPlus,
+      hasError,
       // updateName,
     }
   },
