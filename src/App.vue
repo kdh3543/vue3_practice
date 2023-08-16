@@ -21,7 +21,11 @@
     <div v-if="!todos.length">추가된 리스트가 없습니다.</div>
     <!-- v-for 사용시 key도 같이 -->
     <!-- 컴포넌트에 : 바인딩으로 props 데이터 전달 가능 -->
-    <TodoList :todos="todos" />
+    <TodoList
+      :todos="todos"
+      @toggle-todo="toggleTodo"
+      @delete-todo="deleteTodo"
+    />
   </div>
 </template>
 
@@ -72,6 +76,10 @@ export default {
       todos.value.push(todo)
     }
 
+    const toggleTodo = (index) => {
+      todos.value[index].completed = !todos.value[index].completed
+    }
+
     return {
       name,
       nameClass,
@@ -83,6 +91,7 @@ export default {
       todoStyle,
       deleteTodo,
       addTodo,
+      toggleTodo,
       // updateName,
     }
   },
