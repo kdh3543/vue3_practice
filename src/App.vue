@@ -16,33 +16,24 @@
   <hr />
   <div class="container">
     <h1>Todo List</h1>
+    <TodoSimpleForm @add-todo="addTodo" />
 
-    <!-- @submit.prevent => event.preventDefault()와 동일 -->
-    <form @submit.prevent="onPlus" class="d-flex">
-      <div class="flex-grow-1 mr-2">
-        <input
-          placeholder="Type new to-do"
-          class="form-control"
-          type="text"
-          v-model="todo"
-        />
-      </div>
-      <div>
-        <button class="btn btn-primary" type="submit">Plus</button>
-      </div>
-    </form>
-    <div style="color: red" v-show="hasError">This field cannot be empty</div>
+    <div v-if="!todos.length">추가된 리스트가 없습니다.</div>
     <!-- v-for 사용시 key도 같이 -->
-    <div v-for="todo in todos" :key="todo.id" class="card mt-2">
-      <div class="card-body p-2">{{ todo.subject }}</div>
-    </div>
+    <!-- 컴포넌트에 : 바인딩으로 props 데이터 전달 가능 -->
+    <TodoList :todos="todos" />
   </div>
 </template>
 
 <script>
 import { ref, reactive } from 'vue'
-
+import TodoSimpleForm from './components/Todo/TodoSimpleForm.vue'
+import TodoList from './components/Todo/TodoList.vue'
 export default {
+  components: {
+    TodoSimpleForm,
+    TodoList,
+  },
   // 필요한 로직 작성
   setup() {
     const name = ref('kevin')
@@ -50,13 +41,13 @@ export default {
     // reactive는 object, array 이외에는 사용 불가능
     const otherName = reactive({ title: 'kevin21' })
     const nameClass = ref('name')
-    const hasError = ref(false)
 
-    const todo = ref('')
-    const todos = ref([
-      { id: 1, subject: '휴대폰사기' },
-      { id: 2, subject: '장보기' },
-    ])
+    const todoStyle = {
+      textDecoration: 'line-through',
+      color: 'gray',
+    }
+
+    const todos = ref([])
 
     const greeting = (param) => {
       return 'hello, ' + param
@@ -73,17 +64,12 @@ export default {
       console.log(name.value)
     }
 
-    const onPlus = () => {
-      console.log(todo.value)
-      if (todo.value === '') {
-        hasError.value = true
-        return
-      }
-      hasError.value = false
-      todos.value.push({
-        id: Date.now(),
-        subject: todo.value,
-      })
+    const deleteTodo = (index) => {
+      todos.value.splice(index, 1)
+    }
+
+    const addTodo = (todo) => {
+      todos.value.push(todo)
     }
 
     return {
@@ -93,10 +79,10 @@ export default {
       greeting,
       btnEvent,
       onSubmit,
-      todo,
       todos,
-      onPlus,
-      hasError,
+      todoStyle,
+      deleteTodo,
+      addTodo,
       // updateName,
     }
   },
@@ -104,8 +90,9 @@ export default {
 </script>
 
 <style>
-.name {
-  color: red;
+.todo {
+  color: gray;
+  text-decoration: line-through;
 }
 .name2 {
   color: aqua;
