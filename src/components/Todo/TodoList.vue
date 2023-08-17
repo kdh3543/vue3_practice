@@ -3,7 +3,7 @@
     <div class="card-body d-flex align-items-center p-2">
       <div class="form-check flex-grow-1">
         <input
-          :value="todo.completed"
+          :checked="todo.completed"
           @change="toggleTodo(index)"
           type="checkbox"
           class="form-check-input"

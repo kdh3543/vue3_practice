@@ -16,27 +16,47 @@
   <hr />
   <div class="container">
     <h1>Todo List</h1>
+    <input
+      type="text"
+      class="form-control"
+      v-model="searchText"
+      placeholder="Search"
+    />
+    <hr />
     <TodoSimpleForm @add-todo="addTodo" />
+    <div style="color: red">{{ error }}</div>
 
-    <div v-if="!todos.length">추가된 리스트가 없습니다.</div>
     <!-- v-for 사용시 key도 같이 -->
     <!-- 컴포넌트에 : 바인딩으로 props 데이터 전달 가능 -->
+    <div v-if="!filteredTodos.length">There is nothing to display</div>
     <TodoList
-      :todos="todos"
+      :todos="filteredTodos"
       @toggle-todo="toggleTodo"
       @delete-todo="deleteTodo"
+    />
+    <hr />
+    <PaginationFunc
+      @get-todos="getTodos"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
     />
   </div>
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import TodoSimpleForm from './components/Todo/TodoSimpleForm.vue'
 import TodoList from './components/Todo/TodoList.vue'
+import axios from 'axios'
+import PaginationFunc from './components/Pagination/PaginationFunc.vue'
+
+const DB_URL = 'http://localhost:3000'
+
 export default {
   components: {
     TodoSimpleForm,
     TodoList,
+    PaginationFunc,
   },
   // 필요한 로직 작성
   setup() {
@@ -52,7 +72,28 @@ export default {
     }
 
     const todos = ref([])
+    const error = ref('')
+    const totalDatas = ref(0)
+    const limit = 5
+    const currentPage = ref(1)
+    const totalPages = computed(() => {
+      return Math.ceil(totalDatas.value / limit)
+    })
 
+    const getTodos = async (page = currentPage.value) => {
+      try {
+        const res = await axios.get(
+          `${DB_URL}/todos?_page=${page}&_limit=${limit}`
+        )
+        currentPage.value = page
+        totalDatas.value = res.headers['x-total-count']
+        todos.value = res.data
+      } catch (err) {
+        console.log(err)
+        error.value = 'Something went wrong'
+      }
+    }
+    getTodos()
     const greeting = (param) => {
       return 'hello, ' + param
     }
@@ -67,19 +108,60 @@ export default {
     const onSubmit = () => {
       console.log(name.value)
     }
+    const errorFunc = () => {
+      return (error.value = 'Something went wrong')
+    }
 
-    const deleteTodo = (index) => {
+    const deleteTodo = async (index) => {
+      const id = todos.value[index].id
+      try {
+        await axios.delete(`${DB_URL}/todos/${id}`)
+      } catch (err) {
+        console.log(err)
+        errorFunc()
+      }
       todos.value.splice(index, 1)
     }
 
-    const addTodo = (todo) => {
-      todos.value.push(todo)
+    const addTodo = async (todo) => {
+      // db에 todo 저장
+      try {
+        const res = await axios.post(`${DB_URL}/todos`, {
+          subject: todo.subject,
+          completed: todo.completed,
+        })
+        todos.value.push(res.data)
+      } catch (err) {
+        console.log(err)
+        errorFunc()
+      }
     }
 
-    const toggleTodo = (index) => {
+    const toggleTodo = async (index) => {
+      const id = todos.value[index].id
+      try {
+        // 데이터 부분 업데이트는 patch
+        await axios.patch(`${DB_URL}/todos/${id}`, {
+          completed: !todos.value[index].completed,
+        })
+      } catch (err) {
+        console.log(err)
+        errorFunc()
+      }
       todos.value[index].completed = !todos.value[index].completed
     }
 
+    //computed를 사용한 search
+    const searchText = ref('')
+
+    const filteredTodos = computed(() => {
+      if (searchText.value) {
+        return todos.value.filter((todo) => {
+          return todo.subject.includes(searchText.value)
+        })
+      }
+      return todos.value
+    })
     return {
       name,
       nameClass,
@@ -92,6 +174,14 @@ export default {
       deleteTodo,
       addTodo,
       toggleTodo,
+      searchText,
+      filteredTodos,
+      error,
+      getTodos,
+      totalDatas,
+      currentPage,
+      limit,
+      totalPages,
       // updateName,
     }
   },
