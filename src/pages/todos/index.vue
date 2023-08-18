@@ -42,6 +42,7 @@
       :totalPages="totalPages"
     />
   </div>
+  <Toast />
 </template>
 
 <script>
@@ -50,6 +51,7 @@ import TodoSimpleForm from '@/components/Todo/TodoSimpleForm.vue'
 import TodoList from '@/components/Todo/TodoList.vue'
 import axios from 'axios'
 import PaginationFunc from '@/components/Pagination/PaginationFunc.vue'
+import Toast from '@/components/Toast/Toast.vue'
 
 const DB_URL = 'http://localhost:3000'
 
@@ -58,6 +60,7 @@ export default {
     TodoSimpleForm,
     TodoList,
     PaginationFunc,
+    Toast,
   },
   // 필요한 로직 작성
   setup() {
