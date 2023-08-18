@@ -1,16 +1,20 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">Navbar</a>
+      <router-link class="navbar-brand" to="/">Home</router-link>
 
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
+          <router-link class="nav-link active" aria-current="page" to="/todos"
+            >Todos</router-link
+          >
         </li>
       </ul>
     </div>
   </nav>
-  <router-view />
+  <div class="container">
+    <router-view />
+  </div>
 </template>
 
 <script>

@@ -2,19 +2,18 @@
 <!-- template, script, style -->
 <!-- v-bind: => :로 가능, (이벤트)v-on: => @로 가능 -->
 <template>
-  <router-view />
-  <div :class="nameClass">테스트 코드 중 {{ name }} {{ otherName.title }}</div>
+  <!-- <div :class="nameClass">테스트 코드 중 {{ name }} {{ otherName.title }}</div> -->
   <!-- 함수에 script에 있는 변수 사용가능 -->
-  <div>{{ greeting(name) }}</div>
+  <!-- <div>{{ greeting(name) }}</div> -->
   <!-- type도 v-bind로 해서 type 변경이 가능함 -->
   <!-- @input="updateName"  -->
   <!-- :value="name"  -->
   <!-- v-model사용시 양방향 바인딩 가능 -->
-  <input type="text" v-model="name" />
+  <!-- <input type="text" v-model="name" />
 
   <button class="btn btn-primary" @click="btnEvent">click</button>
   <button class="btn btn-primary" @click="onSubmit">submit</button>
-  <hr />
+  <hr /> -->
   <div class="container">
     <h1>Todo List</h1>
     <input
@@ -146,18 +145,18 @@ export default {
       }
     }
 
-    const toggleTodo = async (index) => {
+    const toggleTodo = async (index, checked) => {
       const id = todos.value[index].id
       try {
         // 데이터 부분 업데이트는 patch
         await axios.patch(`${DB_URL}/todos/${id}`, {
-          completed: !todos.value[index].completed,
+          completed: checked,
         })
       } catch (err) {
         console.log(err)
         errorFunc()
       }
-      todos.value[index].completed = !todos.value[index].completed
+      todos.value[index].completed = checked
     }
 
     // searchText가 변경될 때마다 요청을 보내지 않고 몇초가 지난 후에 한번에 요청 보내도록
