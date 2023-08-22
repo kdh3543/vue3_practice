@@ -15,7 +15,10 @@
   <button class="btn btn-primary" @click="onSubmit">submit</button>
   <hr /> -->
   <div class="container">
-    <h1>Todo List</h1>
+    <div class="d-flex justify-content-between mb-3">
+      <h2>Todo List</h2>
+      <button @click="moveToCreate" class="btn btn-primary">Create Todo</button>
+    </div>
     <input
       type="text"
       class="form-control"
@@ -24,8 +27,6 @@
       @keyup.enter="searchTodo"
     />
     <hr />
-    <TodoSimpleForm @add-todo="addTodo" />
-    <div style="color: red">{{ error }}</div>
 
     <!-- v-for 사용시 key도 같이 -->
     <!-- 컴포넌트에 : 바인딩으로 props 데이터 전달 가능 -->
@@ -42,28 +43,29 @@
       :totalPages="totalPages"
     />
   </div>
-  <Toast />
+  <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
 </template>
 
 <script>
 import { ref, reactive, computed, watch } from 'vue'
-import TodoSimpleForm from '@/components/Todo/TodoSimpleForm.vue'
 import TodoList from '@/components/Todo/TodoList.vue'
 import axios from 'axios'
 import PaginationFunc from '@/components/Pagination/PaginationFunc.vue'
 import Toast from '@/components/Toast/Toast.vue'
+import { useRouter } from 'vue-router'
+import { useToast } from '@/composables/toast'
 
 const DB_URL = 'http://localhost:3000'
 
 export default {
   components: {
-    TodoSimpleForm,
     TodoList,
     PaginationFunc,
     Toast,
   },
   // 필요한 로직 작성
   setup() {
+    const router = useRouter()
     const name = ref('kevin')
     // value 안쓰고 사용하는 법
     // reactive는 object, array 이외에는 사용 불가능
@@ -82,6 +84,8 @@ export default {
     const currentPage = ref(1)
     const searchText = ref('')
 
+    const { toastMessage, toastAlertType, showToast, triggerToast } = useToast()
+
     const totalPages = computed(() => {
       return Math.ceil(totalDatas.value / limit)
     })
@@ -99,7 +103,7 @@ export default {
         todos.value = res.data
       } catch (err) {
         console.log(err)
-        error.value = 'Something went wrong'
+        errorFunc('Something went wrong', 'danger')
       }
     }
     getTodos()
@@ -118,8 +122,8 @@ export default {
     const onSubmit = () => {
       console.log(name.value)
     }
-    const errorFunc = () => {
-      return (error.value = 'Something went wrong')
+    const errorFunc = (message, type) => {
+      return triggerToast(message, type)
     }
 
     const deleteTodo = async (index) => {
@@ -128,7 +132,7 @@ export default {
         await axios.delete(`${DB_URL}/todos/${id}`)
       } catch (err) {
         console.log(err)
-        errorFunc()
+        errorFunc('Something went wrong', 'danger')
       }
       // todos.value.splice(index, 1)
       getTodos(currentPage.value)
@@ -144,7 +148,7 @@ export default {
         getTodos(currentPage.value)
       } catch (err) {
         console.log(err)
-        errorFunc()
+        errorFunc('Something went wrong', 'danger')
       }
     }
 
@@ -157,7 +161,7 @@ export default {
         })
       } catch (err) {
         console.log(err)
-        errorFunc()
+        errorFunc('Something went wrong', 'danger')
       }
       todos.value[index].completed = checked
     }
@@ -182,6 +186,12 @@ export default {
     //   }
     //   return todos.value
     // })
+
+    const moveToCreate = () => {
+      router.push({
+        name: 'TodoCreate',
+      })
+    }
     return {
       name,
       nameClass,
@@ -202,6 +212,10 @@ export default {
       limit,
       totalPages,
       searchTodo,
+      moveToCreate,
+      toastMessage,
+      toastAlertType,
+      showToast,
     }
   },
 }
