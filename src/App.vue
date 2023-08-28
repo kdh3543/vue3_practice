@@ -18,7 +18,10 @@
 </template>
 
 <script>
-export default {}
+// import { useStore } from 'vuex';
+export default {
+ 
+}
 </script>
 
 <style></style>
